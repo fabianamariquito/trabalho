@@ -443,3 +443,62 @@ descritiva(dados$X11)[1:9]
 ##Teste de normalidade 
 shapiro.test(dados$X11)
 
+################################################################################################################################################
+x8 <- dados %>%
+  select(X8) %>%
+  distinct() %>%
+  mutate(x8.1 = ifelse(X8 == "NE", 1, 0),
+         x8.2 = ifelse(X8 == "S", 1, 0),
+         x8.3 = ifelse(X8 == "W", 1, 0),
+         x8.4=ifelse(X8 == "NC",1,0))
+
+x7= dados %>%
+  select(X7) %>%
+  distinct() %>%
+  mutate(x7i = ifelse(X7 == "Sim", 1, 0))
+
+
+dados <- dados %>%
+  inner_join(x8)
+dados=dados%>%inner_join(x7)
+####################################################################################################################################################
+##########Seleção de variavel
+modmin<-lm(log(Y) ~ 1, data=dados)
+step(modmin, direction='forward', scope=( ~ X1+X4+X5+X6+X9+x7i+x8.1+x8.2+x8.3+X11))
+modcompl=lm(log(Y)~X1+X4+X5+X6+X9+x7i+x8.1+x8.2+x8.3+X11,data=dados)
+
+step(modmin, scope=list(lower=modmin, upper=modcompl), direction="both",data=dados)
+step(modcompl, direction = 'backward')
+
+####################################################################################################
+library(lmtest)
+#primeiro modelo
+mod=lm(log(Y)~X6+X11+X5,dados)
+summary(mod)#0.7992
+mean(vif(mod))
+bptest(mod)
+shapiro.test(mod$residuals)
+
+
+#segundo modelo
+mod=lm(log(Y)~X11+X9,dados)
+summary(mod)#0.7928
+mean(vif(mod))
+bptest(mod)
+shapiro.test(mod$residuals)
+
+#terceiro modelo
+mod=lm(log(Y)~X9+X11+X4,dados)
+summary(mod)#0.7985
+mean(vif(mod))
+bptest(mod)
+shapiro.test(mod$residuals)
+
+#quarto modelo - tem que tratar os dados
+mod=lm(log(Y)~I(X6^2)+X6+X11+I(X11^2),dados)
+summary(mod)#0.8542
+mean(vif(mod))
+bptest(mod)
+shapiro.test(mod$residuals)
+
+#quinto modelo
