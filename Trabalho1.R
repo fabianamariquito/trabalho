@@ -502,3 +502,9 @@ bptest(mod)
 shapiro.test(mod$residuals)
 
 #quinto modelo
+mod=lm(log(Y)~X6+X11,dados)
+summary(mod)#0.7992
+mean(vif(mod))
+bptest(mod)
+shapiro.test(mod$residuals)
+
